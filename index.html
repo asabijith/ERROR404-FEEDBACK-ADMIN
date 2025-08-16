@@ -5,9 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ERROR 404 - Admin Dashboard</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
@@ -586,37 +583,6 @@
             background-clip: padding-box;
         }
 
-        /* Auto-refresh indicator */
-        .auto-refresh-indicator {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            color: white;
-            padding: 15px 20px;
-            border-radius: 15px;
-            border: 1px solid var(--glass-border);
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            opacity: 0;
-            transform: translateY(100px);
-            transition: all 0.5s ease;
-            z-index: 1000;
-        }
-
-        .auto-refresh-indicator.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .refresh-countdown {
-            font-weight: 600;
-            color: #4facfe;
-        }
-
         /* Responsive Design */
         @media (max-width: 1024px) {
             .container {
@@ -659,13 +625,6 @@
             .feedback-section {
                 padding: 25px;
             }
-
-            .auto-refresh-indicator {
-                bottom: 20px;
-                right: 20px;
-                font-size: 0.8rem;
-                padding: 12px 16px;
-            }
         }
 
         /* Loading animation for data refresh */
@@ -682,6 +641,20 @@
         @keyframes spin {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
+        }
+
+        /* Loading animation styles */
+        .feedback-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
     </style>
 </head>
@@ -749,12 +722,6 @@
         </div>
     </div>
 
-    <!-- Auto-refresh indicator -->
-    <div class="auto-refresh-indicator" id="autoRefreshIndicator">
-        <i class="fas fa-sync-alt"></i>
-        Auto-refresh in <span class="refresh-countdown" id="countdown">30</span>s
-    </div>
-
     <!-- Firebase SDK -->
     <script type="module">
         // Import Firebase modules
@@ -782,16 +749,10 @@
         const totalFeedbackElement = document.getElementById('totalFeedback');
         const averageRatingElement = document.getElementById('averageRating');
         const todayFeedbackElement = document.getElementById('todayFeedback');
-        const autoRefreshIndicator = document.getElementById('autoRefreshIndicator');
-        const countdownElement = document.getElementById('countdown');
-
-        let countdownTimer;
-        let refreshTimer;
 
         // Load feedback on page load
         document.addEventListener('DOMContentLoaded', () => {
             loadFeedback();
-            startAutoRefresh();
         });
 
         // Make loadFeedback globally accessible
@@ -956,70 +917,6 @@
             }
             return starsHTML;
         }
-
-        // Auto-refresh functionality with countdown
-        function startAutoRefresh() {
-            let countdown = 30;
-            
-            function updateCountdown() {
-                countdownElement.textContent = countdown;
-                
-                if (countdown <= 10) {
-                    autoRefreshIndicator.classList.add('show');
-                } else {
-                    autoRefreshIndicator.classList.remove('show');
-                }
-                
-                countdown--;
-                
-                if (countdown < 0) {
-                    loadFeedback();
-                    countdown = 30;
-                }
-            }
-            
-            // Update countdown immediately and then every second
-            updateCountdown();
-            countdownTimer = setInterval(updateCountdown, 1000);
-        }
-
-        // Reset countdown when manual refresh is triggered
-        window.addEventListener('beforeunload', () => {
-            if (countdownTimer) clearInterval(countdownTimer);
-        });
-
-        // Enhanced refresh button functionality
-        const originalLoadFeedback = window.loadFeedback;
-        window.loadFeedback = function() {
-            // Reset countdown
-            if (countdownTimer) {
-                clearInterval(countdownTimer);
-                startAutoRefresh();
-            }
-            
-            // Call original function
-            originalLoadFeedback();
-        };
-
-        // Add loading animation styles
-        const additionalStyles = `
-            .feedback-item {
-                opacity: 0;
-                transform: translateY(20px);
-                animation: fadeInUp 0.6s ease forwards;
-            }
-            
-            @keyframes fadeInUp {
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-        `;
-        
-        const styleSheet = document.createElement('style');
-        styleSheet.textContent = additionalStyles;
-        document.head.appendChild(styleSheet);
 
     </script>
 </body>
